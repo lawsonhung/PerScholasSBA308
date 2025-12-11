@@ -1,6 +1,4 @@
 // The provided course information.
-
-
 const CourseInfo = {
   id: 451,
   name: "Introduction to JavaScript"
@@ -82,16 +80,25 @@ function getLearnerData(course, ag, submissions) {
 
   try {
 
-
-    // const courseID = course.id;
-    const courseID = 333;
-    console.log(courseID);
+    const courseID = course.id;
 
     // If an AssignmentGroup does not belong to its course (mismatching course_id), throw an error, letting the user know that the input was invalid.
     if (courseID != ag.course_id) {
       throw new Error(`You don't belong to this course`);
     }
 
+    let dueAssignments = [];
+
+    ag.assignments.forEach(assignment => {
+      const yearDue = parseInt(assignment.due_at.slice(0, 4));
+      if (yearDue < 2025) {
+        dueAssignments.push(assignment);
+      }
+    });
+
+    console.log(dueAssignments);
+
+    let result = [];
 
     // // here, we would process this data to achieve the desired result.
     // const result = [

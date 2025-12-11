@@ -107,9 +107,6 @@ function getLearnerData(course, ag, submissions) {
       });
     });
 
-    console.log('Due submissions');
-    console.log(dueSubmissions);
-
     let uniqueLearnerIDs = [];
 
     // Get unique learner IDs
@@ -134,10 +131,12 @@ function getLearnerData(course, ag, submissions) {
       })
     });
 
+    // Populate result with scores and set average to sum for now
     result.forEach(learnerResult => {
-      submissions.forEach(submission => {
+      dueSubmissions.forEach(submission => {
         if (submission.learner_id == learnerResult.id) {
-
+          learnerResult[submission.assignment_id] = submission.submission.score;
+          learnerResult.avg += submission.submission.score;
         }
       });
     });

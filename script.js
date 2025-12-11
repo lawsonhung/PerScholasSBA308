@@ -77,11 +77,14 @@ const LearnerSubmissions = [
     }
   }
 ];
-try {
-  function getLearnerData(course, ag, submissions) {
+
+function getLearnerData(course, ag, submissions) {
+
+  try {
 
 
-    const courseID = course.id;
+    // const courseID = course.id;
+    const courseID = 333;
     console.log(courseID);
 
     // If an AssignmentGroup does not belong to its course (mismatching course_id), throw an error, letting the user know that the input was invalid.
@@ -107,11 +110,11 @@ try {
     // ];
 
     // return result;
+  } catch (err) {
+    console.error(err.message);
   }
-
-} catch (err) {
-  console.error(err.message);
 }
+
 const result = getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions);
 
 console.log(result);

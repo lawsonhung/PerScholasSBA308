@@ -89,6 +89,7 @@ function getLearnerData(course, ag, submissions) {
 
     let dueAssignments = [];
 
+    // Popluate dueAssignments array assuming the year is now 2025
     ag.assignments.forEach(assignment => {
       const yearDue = parseInt(assignment.due_at.slice(0, 4));
       if (yearDue < 2025) {
@@ -96,10 +97,22 @@ function getLearnerData(course, ag, submissions) {
       }
     });
 
-    console.log(dueAssignments);
+    let dueSubmissions = [];
+
+    // Populate dueSubmissions with submissions that are past due based on dueAssignments
+    submissions.forEach(submission => {
+      dueAssignments.forEach(assignment => {
+        if (assignment.id == submission.assignment_id)
+          dueSubmissions.push(submission);
+      });
+    });
+
+    console.log('Due submissions');
+    console.log(dueSubmissions);
 
     let uniqueLearnerIDs = [];
 
+    // Get unique learner IDs
     submissions.forEach(submission => {
       if (!uniqueLearnerIDs.includes(submission.learner_id))
         uniqueLearnerIDs.push(submission.learner_id);
@@ -107,15 +120,26 @@ function getLearnerData(course, ag, submissions) {
 
     let result = [];
 
+    // Populate result array with unique IDs
     uniqueLearnerIDs.forEach(id => {
-      result.push({id: id});
+      result.push({ id: id });
     });
 
+    // For each due assignment, populate each learner result with the due assignment id
+    // Filters out assignments that students turned in early and aren't due yet
     result.forEach(learnerResult => {
       learnerResult.avg = 0;
       dueAssignments.forEach(dueAssignment => {
         learnerResult[dueAssignment.id] = 0;
       })
+    });
+
+    result.forEach(learnerResult => {
+      submissions.forEach(submission => {
+        if (submission.learner_id == learnerResult.id) {
+
+        }
+      });
     });
 
     console.log(result);

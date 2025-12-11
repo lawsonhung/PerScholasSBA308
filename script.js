@@ -105,12 +105,17 @@ function getLearnerData(course, ag, submissions) {
         uniqueLearnerIDs.push(submission.learner_id);
     });
 
-    console.log(uniqueLearnerIDs);
-
     let result = [];
 
     uniqueLearnerIDs.forEach(id => {
       result.push({id: id});
+    });
+
+    result.forEach(learnerResult => {
+      learnerResult.avg = 0;
+      dueAssignments.forEach(dueAssignment => {
+        learnerResult[dueAssignment.id] = 0;
+      })
     });
 
     console.log(result);

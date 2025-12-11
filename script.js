@@ -98,7 +98,22 @@ function getLearnerData(course, ag, submissions) {
 
     console.log(dueAssignments);
 
+    let uniqueLearnerIDs = [];
+
+    submissions.forEach(submission => {
+      if (!uniqueLearnerIDs.includes(submission.learner_id))
+        uniqueLearnerIDs.push(submission.learner_id);
+    });
+
+    console.log(uniqueLearnerIDs);
+
     let result = [];
+
+    uniqueLearnerIDs.forEach(id => {
+      result.push({id: id});
+    });
+
+    console.log(result);
 
     // // here, we would process this data to achieve the desired result.
     // const result = [

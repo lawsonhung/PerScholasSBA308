@@ -107,6 +107,33 @@ function getLearnerData(course, ag, submissions) {
       });
     });
 
+    // Adjust for late submissions
+    dueSubmissions.forEach(submission => {
+      dueAssignments.forEach(assignment => {
+        const dueDate = assignment.due_at.split('-');
+        const submissionDate = submission.submission.submitted_at.split('-');
+
+        if (submission.assignment_id == assignment.id) {
+          // Assuming there are only 3 items in date.split array
+          if (parseInt(submissionDate[0]) > parseInt(dueDate[0])) {
+            submission.submission.score -= assignment.points_possible * .1;
+            console.log(submission);
+            return;
+          }
+          else if (parseInt(submissionDate[1]) > parseInt(dueDate[1])) {
+            submission.submission.score -= assignment.points_possible * .1;
+            console.log(submission);
+            return;
+          }
+          else if (parseInt(submissionDate[2]) > parseInt(dueDate[2])) {
+            submission.submission.score -= assignment.points_possible * .1;
+            console.log(submission);
+            return;
+          }
+        }
+      });
+    });
+
     let uniqueLearnerIDs = [];
 
     // Get unique learner IDs
@@ -131,14 +158,24 @@ function getLearnerData(course, ag, submissions) {
       })
     });
 
-    // Populate result with scores and set average to sum for now
+    // Populate result with averages for each course and total avg
     result.forEach(learnerResult => {
+
+      // Populate result with scores and set average to sum for now
       dueSubmissions.forEach(submission => {
         if (submission.learner_id == learnerResult.id) {
           learnerResult[submission.assignment_id] = submission.submission.score;
           learnerResult.avg += submission.submission.score;
         }
       });
+
+      // Weight scores and averages for each due assignment
+      let totalPointsPossible = 0;
+      dueAssignments.forEach(assignment => {
+        learnerResult[assignment.id] /= assignment.points_possible;
+        totalPointsPossible += assignment.points_possible;
+      });
+      learnerResult.avg /= totalPointsPossible;
     });
 
     console.log(result);

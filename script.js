@@ -88,68 +88,11 @@ function getLearnerData(course, ag, submissions) {
     if (courseID != ag.course_id)
       throw new Error(`You don't belong to this course`);
 
-    let dueAssignments = [];
+    let dueAssignments = populateDueAssignments(ag);
+    
+    let dueSubmissions = populateDueSubmissions(dueAssignments, submissions);;
 
-    // Popluate dueAssignments array assuming the year is now 2025
-    ag.assignments.forEach(assignment => {
-      const yearDue = parseInt(assignment.due_at.slice(0, 4));
-
-      if (typeof assignment.points_possible !== 'number') {
-        if (parseInt(assignment.points_possible))
-          assignment.points_possible = parseInt(assignment.points_possible);
-        else
-          throw new Error('Points possible has to be a number');
-      }
-      if (assignment.points_possible == 0)
-        throw new Error('Points possible can not be 0');
-      if (typeof assignment.id !== 'number') {
-        if (parseInt(assignment.id))
-          assignment.id = parseInt(assignment.id);
-        else
-          throw new Error('Assignment ID has to be a number');
-      }
-
-      if (yearDue < 2025) {
-        dueAssignments.push(assignment);
-      }
-    });
-
-    let dueSubmissions = [];
-
-    // Populate dueSubmissions with submissions that are past due based on dueAssignments
-    submissions.forEach(submission => {
-      dueAssignments.forEach(assignment => {
-        if (assignment.id == submission.assignment_id)
-          dueSubmissions.push(submission);
-      });
-    });
-
-    // Adjust for late submissions
-    dueSubmissions.forEach(submission => {
-      dueAssignments.forEach(assignment => {
-        const dueDate = assignment.due_at.split('-');
-        const submissionDate = submission.submission.submitted_at.split('-');
-
-        if (submission.assignment_id == assignment.id) {
-          // Assuming there are only 3 items in date.split array
-          if (parseInt(submissionDate[0]) > parseInt(dueDate[0])) {
-            submission.submission.score -= assignment.points_possible * .1;
-            console.log('This submission was late', submission);
-            return;
-          }
-          else if (parseInt(submissionDate[1]) > parseInt(dueDate[1])) {
-            submission.submission.score -= assignment.points_possible * .1;
-            console.log('This submission was late', submission);
-            return;
-          }
-          else if (parseInt(submissionDate[2]) > parseInt(dueDate[2])) {
-            submission.submission.score -= assignment.points_possible * .1;
-            console.log('This submission was late', submission);
-            return;
-          }
-        }
-      });
-    });
+    dueSubmissions = calculateLateSubmissions(dueSubmissions, dueAssignments);
 
     let uniqueLearnerIDs = [];
 
@@ -217,6 +160,81 @@ function getLearnerData(course, ag, submissions) {
   } catch (err) {
     console.error(err.message);
   }
+}
+
+function populateDueAssignments(ag) {
+  // Populate dueAssignments array assuming the year is now 2025
+  let dueAssignments = [];
+
+  ag.assignments.forEach(assignment => {
+    const yearDue = parseInt(assignment.due_at.slice(0, 4));
+
+    if (typeof assignment.points_possible !== 'number') {
+      if (parseInt(assignment.points_possible))
+        assignment.points_possible = parseInt(assignment.points_possible);
+      else
+        throw new Error('Points possible has to be a number');
+    }
+    if (assignment.points_possible == 0)
+      throw new Error('Points possible can not be 0');
+    if (typeof assignment.id !== 'number') {
+      if (parseInt(assignment.id))
+        assignment.id = parseInt(assignment.id);
+      else
+        throw new Error('Assignment ID has to be a number');
+    }
+
+    if (yearDue < 2025) {
+      dueAssignments.push(assignment);
+    }
+  });
+
+  return dueAssignments;
+}
+
+function populateDueSubmissions(dueAssignments, submissions) {
+    // Populate dueSubmissions with submissions that are past due based on dueAssignments
+    let dueSubmissions = []
+
+    submissions.forEach(submission => {
+      dueAssignments.forEach(assignment => {
+        if (assignment.id == submission.assignment_id)
+          dueSubmissions.push(submission);
+      });
+    });
+
+    return dueSubmissions;
+}
+
+function calculateLateSubmissions(submissions, assignments) {
+    // Adjust for late submissions
+    submissions.forEach(submission => {
+      assignments.forEach(assignment => {
+        const dueDate = assignment.due_at.split('-');
+        const submissionDate = submission.submission.submitted_at.split('-');
+
+        if (submission.assignment_id == assignment.id) {
+          // Assuming there are only 3 items in date.split array
+          if (parseInt(submissionDate[0]) > parseInt(dueDate[0])) {
+            submission.submission.score -= assignment.points_possible * .1;
+            console.log('This submission was late', submission);
+            return;
+          }
+          else if (parseInt(submissionDate[1]) > parseInt(dueDate[1])) {
+            submission.submission.score -= assignment.points_possible * .1;
+            console.log('This submission was late', submission);
+            return;
+          }
+          else if (parseInt(submissionDate[2]) > parseInt(dueDate[2])) {
+            submission.submission.score -= assignment.points_possible * .1;
+            console.log('This submission was late', submission);
+            return;
+          }
+        }
+      });
+    });
+
+    return submissions;
 }
 
 const result = getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions);

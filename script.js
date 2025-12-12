@@ -81,17 +81,34 @@ function getLearnerData(course, ag, submissions) {
   try {
 
     const courseID = course.id;
+    // Testing to error throwing if course ID does not match
+    // const courseID = 132;
 
     // If an AssignmentGroup does not belong to its course (mismatching course_id), throw an error, letting the user know that the input was invalid.
-    if (courseID != ag.course_id) {
+    if (courseID != ag.course_id)
       throw new Error(`You don't belong to this course`);
-    }
 
     let dueAssignments = [];
 
     // Popluate dueAssignments array assuming the year is now 2025
     ag.assignments.forEach(assignment => {
       const yearDue = parseInt(assignment.due_at.slice(0, 4));
+
+      if (typeof assignment.points_possible !== 'number') {
+        if (parseInt(assignment.points_possible))
+          assignment.points_possible = parseInt(assignment.points_possible);
+        else
+          throw new Error('Points possible has to be a number');
+      }
+      if (assignment.points_possible == 0)
+        throw new Error('Points possible can not be 0');
+      if (typeof assignment.id !== 'number') {
+        if (parseInt(assignment.id))
+          assignment.id = parseInt(assignment.id);
+        else
+          throw new Error('Assignment ID has to be a number');
+      }
+
       if (yearDue < 2025) {
         dueAssignments.push(assignment);
       }
@@ -137,10 +154,10 @@ function getLearnerData(course, ag, submissions) {
     let uniqueLearnerIDs = [];
 
     // Get unique learner IDs
-    submissions.forEach(submission => {
+    for (let submission of submissions) {
       if (!uniqueLearnerIDs.includes(submission.learner_id))
         uniqueLearnerIDs.push(submission.learner_id);
-    });
+    }
 
     let result = [];
 

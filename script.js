@@ -117,17 +117,17 @@ function getLearnerData(course, ag, submissions) {
           // Assuming there are only 3 items in date.split array
           if (parseInt(submissionDate[0]) > parseInt(dueDate[0])) {
             submission.submission.score -= assignment.points_possible * .1;
-            console.log(submission);
+            console.log('This submission was late', submission);
             return;
           }
           else if (parseInt(submissionDate[1]) > parseInt(dueDate[1])) {
             submission.submission.score -= assignment.points_possible * .1;
-            console.log(submission);
+            console.log('This submission was late', submission);
             return;
           }
           else if (parseInt(submissionDate[2]) > parseInt(dueDate[2])) {
             submission.submission.score -= assignment.points_possible * .1;
-            console.log(submission);
+            console.log('This submission was late', submission);
             return;
           }
         }
@@ -178,7 +178,7 @@ function getLearnerData(course, ag, submissions) {
       learnerResult.avg /= totalPointsPossible;
     });
 
-    console.log(result);
+    return result;
 
     // // here, we would process this data to achieve the desired result.
     // const result = [
@@ -204,4 +204,4 @@ function getLearnerData(course, ag, submissions) {
 
 const result = getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions);
 
-console.log(result);
+console.log('\nFINAL OUTPUT RESULT ==============================', result);

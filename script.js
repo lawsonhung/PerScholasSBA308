@@ -89,34 +89,12 @@ function getLearnerData(course, ag, submissions) {
       throw new Error(`You don't belong to this course`);
 
     let dueAssignments = populateDueAssignments(ag);
-    
+
     let dueSubmissions = populateDueSubmissions(dueAssignments, submissions);;
 
     dueSubmissions = calculateLateSubmissions(dueSubmissions, dueAssignments);
 
-    let uniqueLearnerIDs = [];
-
-    // Get unique learner IDs
-    for (let submission of submissions) {
-      if (!uniqueLearnerIDs.includes(submission.learner_id))
-        uniqueLearnerIDs.push(submission.learner_id);
-    }
-
-    let result = [];
-
-    // Populate result array with unique IDs
-    uniqueLearnerIDs.forEach(id => {
-      result.push({ id: id });
-    });
-
-    // For each due assignment, populate each learner result with the due assignment id
-    // Filters out assignments that students turned in early and aren't due yet
-    result.forEach(learnerResult => {
-      learnerResult.avg = 0;
-      dueAssignments.forEach(dueAssignment => {
-        learnerResult[dueAssignment.id] = 0;
-      })
-    });
+    let result = initializeResults(submissions, dueAssignments);
 
     // Populate result with averages for each course and total avg
     result.forEach(learnerResult => {
@@ -193,48 +171,78 @@ function populateDueAssignments(ag) {
 }
 
 function populateDueSubmissions(dueAssignments, submissions) {
-    // Populate dueSubmissions with submissions that are past due based on dueAssignments
-    let dueSubmissions = []
+  // Populate dueSubmissions with submissions that are past due based on dueAssignments
+  let dueSubmissions = []
 
-    submissions.forEach(submission => {
-      dueAssignments.forEach(assignment => {
-        if (assignment.id == submission.assignment_id)
-          dueSubmissions.push(submission);
-      });
+  submissions.forEach(submission => {
+    dueAssignments.forEach(assignment => {
+      if (assignment.id == submission.assignment_id)
+        dueSubmissions.push(submission);
     });
+  });
 
-    return dueSubmissions;
+  return dueSubmissions;
 }
 
 function calculateLateSubmissions(submissions, assignments) {
-    // Adjust for late submissions
-    submissions.forEach(submission => {
-      assignments.forEach(assignment => {
-        const dueDate = assignment.due_at.split('-');
-        const submissionDate = submission.submission.submitted_at.split('-');
+  // Adjust for late submissions
+  submissions.forEach(submission => {
+    assignments.forEach(assignment => {
+      const dueDate = assignment.due_at.split('-');
+      const submissionDate = submission.submission.submitted_at.split('-');
 
-        if (submission.assignment_id == assignment.id) {
-          // Assuming there are only 3 items in date.split array
-          if (parseInt(submissionDate[0]) > parseInt(dueDate[0])) {
-            submission.submission.score -= assignment.points_possible * .1;
-            console.log('This submission was late', submission);
-            return;
-          }
-          else if (parseInt(submissionDate[1]) > parseInt(dueDate[1])) {
-            submission.submission.score -= assignment.points_possible * .1;
-            console.log('This submission was late', submission);
-            return;
-          }
-          else if (parseInt(submissionDate[2]) > parseInt(dueDate[2])) {
-            submission.submission.score -= assignment.points_possible * .1;
-            console.log('This submission was late', submission);
-            return;
-          }
+      if (submission.assignment_id == assignment.id) {
+        // Assuming there are only 3 items in date.split array
+        if (parseInt(submissionDate[0]) > parseInt(dueDate[0])) {
+          submission.submission.score -= assignment.points_possible * .1;
+          console.log('This submission was late', submission);
+          return;
         }
-      });
+        else if (parseInt(submissionDate[1]) > parseInt(dueDate[1])) {
+          submission.submission.score -= assignment.points_possible * .1;
+          console.log('This submission was late', submission);
+          return;
+        }
+        else if (parseInt(submissionDate[2]) > parseInt(dueDate[2])) {
+          submission.submission.score -= assignment.points_possible * .1;
+          console.log('This submission was late', submission);
+          return;
+        }
+      }
     });
+  });
 
-    return submissions;
+  return submissions;
+}
+
+function initializeResults(submissions, assignments) {
+  let uniqueLearnerIDs = [];
+
+  // Get unique learner IDs
+  for (let submission of submissions) {
+    if (!uniqueLearnerIDs.includes(submission.learner_id))
+      uniqueLearnerIDs.push(submission.learner_id);
+  }
+
+  let result = [];
+
+  // Populate result array with unique IDs
+  uniqueLearnerIDs.forEach(id => {
+    result.push({ id: id });
+  });
+
+  // For each due assignment, populate each learner result with the due assignment id
+  // Filters out assignments that students turned in early and aren't due yet
+  result.forEach(learnerResult => {
+    // Initialize avg to 0
+    learnerResult.avg = 0;
+    assignments.forEach(assignment => {
+      // Initialize assignment score to 0
+      learnerResult[assignment.id] = 0;
+    })
+  });
+
+  return result;
 }
 
 const result = getLearnerData(CourseInfo, AssignmentGroup, LearnerSubmissions);
